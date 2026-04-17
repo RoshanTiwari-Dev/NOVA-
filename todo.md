@@ -123,3 +123,64 @@
 - [x] Implement lazy loading for conversation list
 - [x] Add loading states for all async operations
 - [x] Ensure smooth transitions between conversations
+
+
+## Phase 4: Major Enhancements
+
+### Web Search API Integration
+- [x] Integrate DuckDuckGo or Google Custom Search API
+- [x] Replace mock search results with real API calls
+- [x] Add search result caching to reduce API calls
+- [x] Display search results with snippets and links
+- [x] Add ability to cite sources in AI responses
+- [x] Implement search result filtering and sorting
+
+### Sandboxed Code Execution
+- [x] Integrate Piston API or similar for code execution
+- [x] Support multiple programming languages (Python, JavaScript, Java, C++, etc.)
+- [x] Execute user code in isolated sandbox environment
+- [x] Capture and display code output and errors
+- [x] Add code syntax highlighting
+- [x] Implement execution timeout and resource limits
+- [x] Store execution history
+
+### Conversation Analytics Dashboard
+- [x] Create analytics page showing conversation statistics
+- [x] Display total conversations, messages, and average response time
+- [x] Show most-used tools and features
+- [x] Create charts for conversation trends over time
+- [x] Display language distribution and topic analysis
+- [x] Add export analytics as PDF/CSV
+- [x] Show user engagement metrics
+
+### Additional Enhancement Features
+- [x] Voice input/output for hands-free interaction
+- [x] Conversation templates for common tasks
+- [x] Favorite/pin conversations for quick access
+- [x] Conversation folders and organization
+- [x] Custom AI personality/tone selection
+- [x] Message reactions and feedback system
+- [x] Collaborative chat sharing with real-time updates
+- [x] Dark mode toggle (currently green/white only)
+- [x] Keyboard shortcuts guide
+- [x] User preferences and settings panel
+- [x] Conversation branching (explore alternative responses)
+- [x] Message editing and regeneration
+- [x] Conversation merging and splitting
+- [x] Advanced search with filters
+- [x] Conversation scheduling and reminders
+
+### Performance & Optimization
+- [ ] Implement message streaming for faster responses
+- [ ] Add request debouncing for search
+- [ ] Optimize database queries
+- [ ] Implement caching for frequently accessed data
+- [ ] Add service worker for offline support
+- [ ] Optimize bundle size
+
+### Testing & Quality
+- [ ] Write tests for web search integration
+- [ ] Write tests for code execution
+- [ ] Write tests for analytics calculations
+- [ ] End-to-end testing for all new features
+- [ ] Performance testing and optimization

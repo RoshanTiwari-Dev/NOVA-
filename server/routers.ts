@@ -341,19 +341,31 @@ export const appRouter = router({
       ];
       }),
 
-      // Web Search Tool
       searchWeb: protectedProcedure
       .input(z.object({ query: z.string().min(1) }))
       .query(async ({ ctx, input }) => {
-        // This would integrate with a real search API
-        // For now, return mock results
-        return [
-          {
-            title: `Results for "${input.query}"`,
-            url: "https://example.com/search",
-            snippet: "Mock search result for demonstration purposes.",
-          },
-        ];
+        try {
+          const response = await fetch(
+            `https://api.duckduckgo.com/?q=${encodeURIComponent(input.query)}&format=json&no_html=1&skip_disambig=1`
+          );
+          const data = await response.json() as any;
+          const results = data.Results?.slice(0, 5).map((result: any) => ({
+            title: result.Text,
+            url: result.FirstURL,
+            snippet: result.Text,
+          })) || [];
+          if (results.length === 0 && data.RelatedTopics) {
+            return data.RelatedTopics.slice(0, 5).map((topic: any) => ({
+              title: topic.Text?.split(' - ')[0] || 'Related Topic',
+              url: topic.FirstURL || '#',
+              snippet: topic.Text || 'Related search topic',
+            }));
+          }
+          return results;
+        } catch (error) {
+          console.error('Search error:', error);
+          return [];
+        }
       }),
 
       // Code Interpreter Tool
