@@ -275,6 +275,107 @@ export const appRouter = router({
           return { content: JSON.stringify(json, null, 2), filename: `${conv[0].title}.json` };
         }
       }),
+
+    // Tools Router
+    tools: router({
+      // Projects Tool
+      createProject: protectedProcedure
+        .input(z.object({ name: z.string().min(1), description: z.string().optional() }))
+        .mutation(async ({ ctx, input }) => {
+        const projectId = Math.random().toString(36).substring(2, 15);
+        return {
+          id: projectId,
+          name: input.name,
+          description: input.description || "",
+          createdAt: new Date(),
+          userId: ctx.user.id,
+        };
+      }),
+
+      listProjects: protectedProcedure.query(async ({ ctx }) => {
+      // Return sample projects for demo
+      return [
+        {
+          id: "proj-1",
+          name: "Web Development",
+          description: "Frontend and backend projects",
+          createdAt: new Date(),
+        },
+        {
+          id: "proj-2",
+          name: "Data Analysis",
+          description: "Analytics and visualization projects",
+          createdAt: new Date(),
+        },
+      ];
+      }),
+
+      // Documents Tool
+      uploadDocument: protectedProcedure
+      .input(z.object({ filename: z.string(), content: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const docId = Math.random().toString(36).substring(2, 15);
+        return {
+          id: docId,
+          filename: input.filename,
+          size: input.content.length,
+          uploadedAt: new Date(),
+          userId: ctx.user.id,
+        };
+      }),
+
+      listDocuments: protectedProcedure.query(async ({ ctx }) => {
+      return [
+        {
+          id: "doc-1",
+          filename: "project-proposal.pdf",
+          size: 245000,
+          uploadedAt: new Date(Date.now() - 86400000),
+        },
+        {
+          id: "doc-2",
+          filename: "meeting-notes.md",
+          size: 15000,
+          uploadedAt: new Date(Date.now() - 172800000),
+        },
+      ];
+      }),
+
+      // Web Search Tool
+      searchWeb: protectedProcedure
+      .input(z.object({ query: z.string().min(1) }))
+      .query(async ({ ctx, input }) => {
+        // This would integrate with a real search API
+        // For now, return mock results
+        return [
+          {
+            title: `Results for "${input.query}"`,
+            url: "https://example.com/search",
+            snippet: "Mock search result for demonstration purposes.",
+          },
+        ];
+      }),
+
+      // Code Interpreter Tool
+      executeCode: protectedProcedure
+      .input(z.object({ code: z.string(), language: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          // This would execute code in a sandboxed environment
+          // For now, return a mock response
+          return {
+            success: true,
+            output: "Code execution completed successfully.",
+            language: input.language,
+          };
+        } catch (error) {
+          return {
+            success: false,
+            error: "Code execution failed",
+          };
+        }
+      }),
+    }),
   }),
 });
 

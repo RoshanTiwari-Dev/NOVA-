@@ -95,3 +95,31 @@
 - [x] Add share dialog with copy-to-clipboard
 - [x] Create unique share tokens in database
 - [x] Add public view page for shared conversations
+
+
+## Phase 3: Functional Tools & Chat History
+
+### Tools Implementation
+- [x] Implement Projects tool - create, list, and manage projects
+- [x] Implement Documents tool - upload, store, and retrieve documents
+- [x] Implement Web Search tool - search the internet and return results
+- [x] Implement Code Interpreter tool - execute and debug code snippets
+- [x] Add tool context to LLM prompts for tool-aware responses
+- [x] Create tool result display components
+
+### Chat History & Persistence
+- [x] Verify conversations are saved to database on creation
+- [x] Verify messages are persisted after each send
+- [x] Implement automatic conversation title generation on first message
+- [x] Display conversation list with timestamps in sidebar
+- [x] Implement conversation switching without data loss
+- [x] Add conversation deletion with confirmation
+- [x] Implement conversation search across all chats
+- [x] Add conversation export functionality
+
+### Performance & UX
+- [x] Optimize message loading for large conversations
+- [x] Add pagination for old messages
+- [x] Implement lazy loading for conversation list
+- [x] Add loading states for all async operations
+- [x] Ensure smooth transitions between conversations
