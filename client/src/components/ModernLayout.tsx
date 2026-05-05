@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, Plus, Trash2, Settings } from "lucide-react";
+import { Menu, X, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ToolsPanel } from "./ToolsPanel";
 import { SearchBar } from "./SearchBar";
@@ -39,6 +39,11 @@ export function ModernLayout({
           sidebarOpen ? "w-64" : "w-0"
         } transition-all duration-300 bg-white border-r border-gray-200 flex flex-col overflow-hidden`}
       >
+        {/* Tools & Features Panel - TOP */}
+        <div className="border-b border-gray-200 p-4">
+          <ToolsPanel />
+        </div>
+
         {/* New Chat Button */}
         <div className="p-4 border-b border-gray-200 space-y-3">
           <Button
@@ -53,8 +58,11 @@ export function ModernLayout({
           )}
         </div>
 
-        {/* Conversations List */}
+        {/* Conversations List - BOTTOM */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-2 mb-3">
+            Chat History
+          </div>
           {conversations.length === 0 ? (
             <div className="text-center text-gray-400 text-sm py-8">
               No conversations yet
@@ -92,20 +100,14 @@ export function ModernLayout({
           )}
         </div>
 
-        {/* Tools Panel */}
-        <div className="border-t border-gray-200 p-4">
-          <ToolsPanel />
-        </div>
-
-        {/* Settings */}
-        <div className="border-t border-gray-200 p-4">
-          <Button
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 text-gray-700 border-gray-300"
-          >
-            <Settings className="w-4 h-4" />
-            Settings
-          </Button>
+        {/* Settings & Analytics Links */}
+        <div className="border-t border-gray-200 p-4 space-y-2">
+          <a href="/analytics" className="block w-full px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium text-center">
+            📊 Analytics
+          </a>
+          <a href="/settings" className="block w-full px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium text-center">
+            ⚙️ Settings
+          </a>
         </div>
       </div>
 
