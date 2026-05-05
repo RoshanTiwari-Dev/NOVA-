@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Menu, X, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ToolsPanel } from "./ToolsPanel";
+import { ToolsManagerEnhanced } from "./ToolsManagerEnhanced";
 import { SearchBar } from "./SearchBar";
 
 interface Conversation {
@@ -40,8 +40,8 @@ export function ModernLayout({
         } transition-all duration-300 bg-white border-r border-gray-200 flex flex-col overflow-hidden`}
       >
         {/* Tools & Features Panel - TOP */}
-        <div className="border-b border-gray-200 p-4">
-          <ToolsPanel />
+        <div className="border-b border-gray-200 p-4 max-h-96 overflow-y-auto">
+          <ToolsManagerEnhanced />
         </div>
 
         {/* New Chat Button */}
