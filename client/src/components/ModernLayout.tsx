@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Menu, X, Plus, Trash2, Settings, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ToolsManagerEnhanced } from "./ToolsManagerEnhanced";
+import { ToolsPanel } from "./ToolsPanel";
 import { SearchBar } from "./SearchBar";
 
 interface Conversation {
@@ -56,35 +56,9 @@ export function ModernLayout({
           sidebarOpen ? "w-64" : "w-0"
         } transition-all duration-300 bg-white border-r border-gray-200 flex flex-col overflow-hidden`}
       >
-        {/* Tools & Features Panel - COMPRESSED */}
+        {/* Tools & Features Panel */}
         <div className="border-b border-gray-200 p-2 max-h-48 overflow-y-auto">
-          <div className="text-xs font-semibold text-gray-600 mb-2 px-2">TOOLS & FEATURES</div>
-          <div className="space-y-1">
-            <details className="group">
-              <summary className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded text-sm">
-                <span>📁</span> <span>Projects</span>
-              </summary>
-              <div className="pl-6 text-xs text-gray-600 py-1">Create and manage projects</div>
-            </details>
-            <details className="group">
-              <summary className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded text-sm">
-                <span>📄</span> <span>Documents</span>
-              </summary>
-              <div className="pl-6 text-xs text-gray-600 py-1">Upload and manage files</div>
-            </details>
-            <details className="group">
-              <summary className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded text-sm">
-                <span>🔍</span> <span>Web Search</span>
-              </summary>
-              <div className="pl-6 text-xs text-gray-600 py-1">Search the internet</div>
-            </details>
-            <details className="group">
-              <summary className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded text-sm">
-                <span>💻</span> <span>Code</span>
-              </summary>
-              <div className="pl-6 text-xs text-gray-600 py-1">Execute code snippets</div>
-            </details>
-          </div>
+          <ToolsPanel />
         </div>
 
         {/* New Chat Button */}
