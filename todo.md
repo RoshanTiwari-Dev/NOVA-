@@ -190,7 +190,7 @@
 - [x] Move New Chat button below tools
 - [x] Place Chat History below new chat button
 - [x] Add Analytics and Settings links at bottom
-- [ ] Add functional event handlers to all tools
+- [x] Add functional event handlers to all tools
 - [x] Fix component structure and remove errors
 - [x] Verify all tests passing (10/10)
 
@@ -209,3 +209,14 @@
 - [x] Add loading states for all async tool actions
 - [x] Add comprehensive error handling for all tools
 - [x] Test all tools end-to-end
+
+
+## Phase 8: UI Improvements & Chat History Enhancement
+- [x] Remove Analytics page from routes
+- [x] Move Settings to dropdown icon in header
+- [x] Compress Tools & Features section for better visibility
+- [x] Implement auto-naming conversations based on first user message
+- [x] Add rename functionality for chat history
+- [x] Add delete functionality for chat history
+- [x] Make chat history more visible and accessible
+- [x] Test all UI changes and verify functionality

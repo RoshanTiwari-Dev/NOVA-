@@ -24,6 +24,7 @@ export default function Home() {
   const createConversationMutation = trpc.chat.createConversation.useMutation();
   const { data: conversationsData } = trpc.chat.getConversations.useQuery();
   const deleteConversationMutation = trpc.chat.deleteConversation.useMutation();
+  const renameConversationMutation = trpc.chat.renameConversation.useMutation();
 
   // Initialize or load conversations
   useEffect(() => {
@@ -100,6 +101,17 @@ export default function Home() {
     setFilteredConversations(results);
   };
 
+  const handleRenameConversation = async (id: number, newTitle: string) => {
+    try {
+      await renameConversationMutation.mutateAsync({ conversationId: id, newTitle });
+      setConversations((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, title: newTitle } : c))
+      );
+    } catch (error) {
+      console.error("Error renaming conversation:", error);
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-white">
@@ -149,6 +161,7 @@ export default function Home() {
       onSelectConversation={setConversationId}
       onNewChat={createNewChat}
       onDeleteConversation={handleDeleteConversation}
+      onRenameConversation={handleRenameConversation}
       onSearch={handleSearch}
     >
       <ChatBoxModern conversationId={conversationId} />

@@ -276,6 +276,33 @@ export const appRouter = router({
         }
       }),
 
+    renameConversation: protectedProcedure
+      .input(z.object({ conversationId: z.number(), newTitle: z.string().min(1).max(100) }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await import("./db").then((m) => m.getDb());
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        const { conversations } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+
+        const conv = await db
+          .select()
+          .from(conversations)
+          .where(eq(conversations.id, input.conversationId))
+          .limit(1);
+
+        if (conv.length === 0 || conv[0].userId !== ctx.user.id) {
+          throw new TRPCError({ code: "UNAUTHORIZED" });
+        }
+
+        await db
+          .update(conversations)
+          .set({ title: input.newTitle })
+          .where(eq(conversations.id, input.conversationId));
+
+        return { success: true };
+      }),
+
     // Tools Router
     tools: router({
       // Projects Tool
