@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Streamdown } from "streamdown";
 import { Button } from "@/components/ui/button";
-import { Loader2, Send, Download, Share2 } from "lucide-react";
+import { Loader2, Send, Download, Share2, Mic, MicOff, Volume2, Pause, Play } from "lucide-react";
 import { toast } from "sonner";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 
 interface Message {
   id: number;
@@ -17,8 +19,34 @@ export function ChatBoxModern({ conversationId }: { conversationId: number }) {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [playingMessageId, setPlayingMessageId] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Speech recognition hook
+  const { isListening, isSpeaking, transcript, startListening, stopListening } = useSpeechRecognition({
+    onTranscript: (text) => {
+      setInputValue((prev) => (prev ? prev + " " + text : text));
+      toast.success("Speech transcribed");
+    },
+    onError: (error) => {
+      toast.error(`Microphone error: ${error}`);
+    },
+    silenceTimeout: 2000,
+  });
+
+  // Speech synthesis hook
+  const { isPlaying, isPaused, speak, stop, togglePlayPause } = useSpeechSynthesis({
+    voice: "female",
+    rate: 1,
+    pitch: 1,
+    onStart: () => {
+      // Audio started playing
+    },
+    onEnd: () => {
+      setPlayingMessageId(null);
+    },
+  });
 
   // Fetch conversation history
   const { data: historyData } = trpc.chat.getHistory.useQuery({
@@ -143,6 +171,24 @@ export function ChatBoxModern({ conversationId }: { conversationId: number }) {
     }
   };
 
+  const handleSpeakMessage = (messageId: number, content: string) => {
+    if (playingMessageId === messageId && isPlaying) {
+      stop();
+      setPlayingMessageId(null);
+    } else {
+      setPlayingMessageId(messageId);
+      speak(content);
+    }
+  };
+
+  const handleMicrophoneClick = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Messages Container */}
@@ -156,7 +202,7 @@ export function ChatBoxModern({ conversationId }: { conversationId: number }) {
               <h2 className="text-2xl font-semibold text-gray-800 mb-2">
                 How can I help you today?
               </h2>
-              <p className="text-gray-500">Start a conversation by typing a message below</p>
+              <p className="text-gray-500">Start a conversation by typing a message below or use the microphone</p>
             </div>
           </div>
         )}
@@ -175,7 +221,7 @@ export function ChatBoxModern({ conversationId }: { conversationId: number }) {
             )}
 
             <div
-              className={`max-w-md lg:max-w-lg px-4 py-3 rounded-lg ${
+              className={`max-w-md lg:max-w-lg px-4 py-3 rounded-lg group ${
                 message.role === "user"
                   ? "bg-green-600 text-white rounded-br-none"
                   : "bg-gray-100 text-gray-800 rounded-bl-none border border-gray-200"
@@ -185,6 +231,34 @@ export function ChatBoxModern({ conversationId }: { conversationId: number }) {
                 <Streamdown>{message.content}</Streamdown>
               ) : (
                 <p className="text-sm leading-relaxed">{message.content}</p>
+              )}
+
+              {/* Speaker Button for AI Messages */}
+              {message.role === "assistant" && (
+                <div className="mt-2 flex gap-2">
+                  <Button
+                    onClick={() => handleSpeakMessage(message.id, message.content)}
+                    size="sm"
+                    variant="ghost"
+                    className={`h-6 px-2 text-xs ${
+                      playingMessageId === message.id && isPlaying
+                        ? "bg-green-500 text-white hover:bg-green-600"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                  >
+                    {playingMessageId === message.id && isPlaying ? (
+                      <>
+                        <Pause className="w-3 h-3 mr-1" />
+                        Stop
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="w-3 h-3 mr-1" />
+                        Listen
+                      </>
+                    )}
+                  </Button>
+                </div>
               )}
             </div>
 
@@ -212,6 +286,16 @@ export function ChatBoxModern({ conversationId }: { conversationId: number }) {
                 className="w-2 h-2 rounded-full bg-green-600 animate-bounce"
                 style={{ animationDelay: "0.4s" }}
               />
+            </div>
+          </div>
+        )}
+
+        {/* Recording Indicator */}
+        {isListening && (
+          <div className="flex gap-3 items-center justify-center py-2">
+            <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-full px-4 py-2">
+              <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-sm font-medium text-red-600">Listening...</span>
             </div>
           </div>
         )}
@@ -247,12 +331,32 @@ export function ChatBoxModern({ conversationId }: { conversationId: number }) {
       {/* Input Area */}
       <div className="border-t border-gray-200 bg-white px-6 py-4">
         <div className="flex gap-3 items-end bg-gray-50 border border-gray-300 rounded-lg p-3 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all">
+          {/* Microphone Button */}
+          <Button
+            onClick={handleMicrophoneClick}
+            disabled={isLoading}
+            size="sm"
+            variant="ghost"
+            className={`flex-shrink-0 h-10 w-10 p-0 ${
+              isListening
+                ? "bg-red-500 text-white hover:bg-red-600"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+            title={isListening ? "Stop listening" : "Start listening"}
+          >
+            {isListening ? (
+              <MicOff className="w-5 h-5" />
+            ) : (
+              <Mic className="w-5 h-5" />
+            )}
+          </Button>
+
           <textarea
             ref={textareaRef}
             value={inputValue}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder="Type your message... (Shift+Enter for new line)"
+            placeholder="Type your message or use the microphone... (Shift+Enter for new line)"
             className="flex-1 bg-transparent text-gray-800 placeholder-gray-500 outline-none resize-none max-h-32 text-sm leading-relaxed"
             rows={1}
             disabled={isLoading}
@@ -271,7 +375,7 @@ export function ChatBoxModern({ conversationId }: { conversationId: number }) {
           </Button>
         </div>
         <p className="text-xs text-gray-500 mt-2 px-1">
-          Press Enter to send, Shift+Enter for new line
+          Press Enter to send, Shift+Enter for new line, or click the microphone to speak
         </p>
       </div>
     </div>

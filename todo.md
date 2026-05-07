@@ -220,3 +220,52 @@
 - [x] Add delete functionality for chat history
 - [x] Make chat history more visible and accessible
 - [x] Test all UI changes and verify functionality
+
+
+## Phase 9: Listening & Speaking Features
+
+### Speech-to-Text (Microphone)
+- [x] Add Web Speech API integration for microphone recording
+- [x] Create microphone button in chat input area
+- [x] Implement single-click to start recording
+- [x] Add visual recording indicator (animated pulse/waveform)
+- [x] Implement auto-stop after silence detection
+- [x] Transcribe audio to text and insert into input field
+- [x] Add error handling for microphone access
+- [x] Test on different browsers (Chrome, Firefox, Safari, Edge)
+
+### Text-to-Speech (Speaking)
+- [x] Integrate Web Audio API or TTS service for text-to-speech
+- [x] Add speaker button to AI response messages only
+- [x] Implement female voice selection
+- [x] Add play/pause/stop controls
+- [x] Show audio playback progress
+- [x] Add visual indicator for currently playing message
+- [x] Handle multiple audio playbacks (stop previous when new plays)
+- [x] Test audio quality and performance
+
+### UI/UX Integration
+- [x] Add microphone icon button to chat input
+- [x] Add speaker icon button to AI messages
+- [x] Create recording status indicator
+- [x] Add loading state while transcribing
+- [x] Add loading state while generating speech
+- [x] Implement smooth animations for controls
+- [x] Ensure mobile responsiveness for audio controls
+- [x] Add accessibility labels for screen readers
+
+### Testing & Quality
+- [x] Test microphone recording on different devices
+- [x] Test text-to-speech on different browsers
+- [x] Test silence detection accuracy
+- [x] Test error handling (no microphone access, etc.)
+- [x] Test performance with long messages
+- [x] Verify audio quality
+- [x] Test on mobile devices
+
+### Deployment
+- [ ] Commit changes to GitHub with feature message
+- [ ] Save checkpoint in Manus
+- [ ] Deploy to production
+- [ ] Test live deployment
+- [ ] Verify users can access listening/speaking features
