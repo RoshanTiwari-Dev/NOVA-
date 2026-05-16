@@ -8,12 +8,17 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
+      {/* Add /NOVA-/ to the main path */}
+      <Route path="/NOVA-" component={Home} />
+      
+      {/* Fallback for standard root just in case */}
+      <Route path="/" component={Home} />
 
-      <Route path={"/404"} component={NotFound} />
+      <Route path="/NOVA-/404" component={NotFound} />
+      <Route path="/404" component={NotFound} />
+      
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>

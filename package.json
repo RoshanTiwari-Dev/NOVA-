@@ -12,7 +12,7 @@
     "test": "vitest run",
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
     "predeploy": "vite build",
-    "deploy": "gh-pages -d client/dist/public"
+    "deploy": "gh-pages -d dist/public"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
