@@ -89,6 +89,13 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function createConversation(userId: number, title: string = "New Chat") {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -219,6 +226,58 @@ export async function createProject(userId: number, name: string, description?: 
     description: description || null,
     color: color || "#10a37f",
   });
+
+  return result;
+}
+
+export async function deleteProject(projectId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db
+    .delete(projects)
+    .where(eq(projects.id, projectId))
+    .where(eq(projects.userId, userId));
+
+  return result;
+}
+
+export async function getUserTools(userId: number, type?: "project" | "document" | "search" | "code" | "other") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  let query = db.select().from(tools).where(eq(tools.userId, userId));
+  
+  if (type) {
+    query = query.where(eq(tools.type, type)) as any;
+  }
+
+  return await query.orderBy(desc(tools.createdAt));
+}
+
+export async function createTool(userId: number, name: string, type: "project" | "document" | "search" | "code" | "other", description?: string, data?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(tools).values({
+    userId,
+    name,
+    type,
+    description: description || null,
+    data: data || null,
+  });
+
+  return result;
+}
+
+export async function deleteTool(toolId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db
+    .delete(tools)
+    .where(eq(tools.id, toolId))
+    .where(eq(tools.userId, userId));
 
   return result;
 }

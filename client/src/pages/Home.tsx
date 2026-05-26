@@ -124,23 +124,9 @@ export default function Home() {
   }
 
   if (!isAuthenticated) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-white">
-        <div className="text-center">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center mx-auto mb-6">
-            <span className="text-white font-bold text-3xl">✨</span>
-          </div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Nova</h1>
-          <p className="text-gray-600 mb-8">AI-powered conversations at your fingertips</p>
-          <Button
-            onClick={() => (window.location.href = getLoginUrl())}
-            className="bg-green-600 hover:bg-green-700 text-white px-8 py-2"
-          >
-            Sign In to Chat
-          </Button>
-        </div>
-      </div>
-    );
+    const authPath = window.location.pathname.startsWith('/NOVA-') ? '/NOVA-/auth' : '/auth';
+    window.location.href = authPath;
+    return null;
   }
 
   if (isInitializing || !conversationId) {

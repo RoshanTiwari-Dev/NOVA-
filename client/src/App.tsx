@@ -6,10 +6,14 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import AuthPage from "./pages/AuthPage";
 
 function Router() {
   return (
     <Switch>
+      <Route path="/auth" component={AuthPage} />
+      <Route path="/NOVA-/auth" component={AuthPage} />
+
       {/* Add /NOVA-/ to the main path */}
       <Route path="/NOVA-" component={Home} />
       
@@ -35,7 +39,7 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider
         defaultTheme="light"
-        // switchable
+        switchable
       >
         <TooltipProvider>
           <Toaster />
