@@ -151,6 +151,7 @@ export function ModernLayout({
             </div>
           )}
         </div>
+
       </div>
 
       {/* Main Content */}

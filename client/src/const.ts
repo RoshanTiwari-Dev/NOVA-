@@ -5,10 +5,8 @@ export const getLoginUrl = () => {
   const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
   const appId = import.meta.env.VITE_APP_ID;
 
-  // 🛡️ SAFETY GUARD FOR GITHUB PAGES:
-  // If variables are missing, return a dummy string to prevent the app from crashing.
   if (!oauthPortalUrl || !appId) {
-    console.warn("OAuth environment variables missing. Using static fallback for GitHub Pages.");
+    console.warn("OAuth environment variables are not configured.");
     return `${window.location.origin}/NOVA-/404`;
   }
 

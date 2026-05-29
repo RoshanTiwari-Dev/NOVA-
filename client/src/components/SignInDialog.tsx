@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface ManusDialogProps {
+interface SignInDialogProps {
   title?: string;
   logo?: string;
   open?: boolean;
@@ -18,14 +18,14 @@ interface ManusDialogProps {
   onClose?: () => void;
 }
 
-export function ManusDialog({
+export function SignInDialog({
   title,
   logo,
   open = false,
   onLogin,
   onOpenChange,
   onClose,
-}: ManusDialogProps) {
+}: SignInDialogProps) {
   const [internalOpen, setInternalOpen] = useState(open);
 
   useEffect(() => {
@@ -57,30 +57,28 @@ export function ManusDialog({
             <div className="w-16 h-16 bg-white rounded-xl border border-[rgba(0,0,0,0.08)] flex items-center justify-center">
               <img
                 src={logo}
-                alt="Dialog graphic"
+                alt="App logo"
                 className="w-10 h-10 rounded-md"
               />
             </div>
           ) : null}
 
-          {/* Title and subtitle */}
           {title ? (
             <DialogTitle className="text-xl font-semibold text-[#34322d] leading-[26px] tracking-[-0.44px]">
               {title}
             </DialogTitle>
           ) : null}
           <DialogDescription className="text-sm text-[#858481] leading-5 tracking-[-0.154px]">
-            Please login with Manus to continue
+            Sign in to continue to Nova
           </DialogDescription>
         </div>
 
         <DialogFooter className="px-5 py-5">
-          {/* Login button */}
           <Button
             onClick={onLogin}
             className="w-full h-10 bg-[#1a1a19] hover:bg-[#1a1a19]/90 text-white rounded-[10px] text-sm font-medium leading-5 tracking-[-0.154px]"
           >
-            Login with Manus
+            Sign in
           </Button>
         </DialogFooter>
       </DialogContent>
