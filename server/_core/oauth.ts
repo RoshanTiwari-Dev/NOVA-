@@ -3,6 +3,8 @@ import type { Express, Request, Response } from "express";
 import * as db from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
+import axios from "axios";
+import { ENV } from "./env";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
@@ -20,30 +22,53 @@ export function registerOAuthRoutes(app: Express) {
     }
 
     try {
-      const tokenResponse = await sdk.exchangeCodeForToken(code, state);
-      const userInfo = await sdk.getUserInfo(tokenResponse.accessToken);
+      // Direct GitHub OAuth exchange
+      const response = await axios.post(
+        ENV.oAuthServerUrl,
+        {
+          client_id: ENV.appId,
+          client_secret: ENV.githubClientSecret,
+          code,
+          redirect_uri: atob(state),
+        },
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
 
-      if (!userInfo.openId) {
-        res.status(400).json({ error: "openId missing from user info" });
-        return;
+      const { access_token } = response.data;
+      if (!access_token) {
+        console.error("[OAuth] No access token in response:", response.data);
+        throw new Error("Failed to obtain access token");
       }
 
+      // Get user info from GitHub
+      const userResponse = await axios.get("https://api.github.com/user", {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+
+      const userInfo = userResponse.data;
+      const openId = `github-${userInfo.id}`;
+
       await db.upsertUser({
-        openId: userInfo.openId,
-        name: userInfo.name || null,
+        openId,
+        name: userInfo.name || userInfo.login,
         email: userInfo.email ?? null,
-        loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
+        loginMethod: "github",
         lastSignedIn: new Date(),
       });
 
-      const sessionToken = await sdk.createSessionToken(userInfo.openId, {
-        name: userInfo.name || "",
+      const sessionToken = await sdk.createSessionToken(openId, {
+        name: userInfo.name || userInfo.login,
         expiresInMs: ONE_YEAR_MS,
       });
 
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
-
       res.redirect(302, "/");
     } catch (error) {
       console.error("[OAuth] Callback failed", error);

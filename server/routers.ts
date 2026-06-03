@@ -23,7 +23,7 @@ export const appRouter = router({
       .input(z.object({
         email: z.string().email(),
         password: z.string().min(6),
-        name: z.string().min(2),
+        name: z.string().min(1),
       }))
       .mutation(async ({ input, ctx }) => {
         const { getUserByEmail, upsertUser } = await import("./db");
