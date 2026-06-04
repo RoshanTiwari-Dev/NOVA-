@@ -7,7 +7,7 @@ export const getLoginUrl = () => {
 
   if (!oauthPortalUrl || !appId) {
     console.warn("OAuth environment variables are not configured.");
-    return `${window.location.origin}/NOVA-/404`;
+    return `${window.location.origin}/404`;
   }
 
   const redirectUri = `${window.location.origin}/api/oauth/callback`;

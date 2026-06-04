@@ -18,7 +18,7 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
 
   if (!isUnauthorized) return;
 
-  const authPath = window.location.pathname.startsWith('/NOVA-') ? '/NOVA-/auth' : '/auth';
+  const authPath = '/auth';
   window.location.href = authPath;
 };
 

@@ -22,48 +22,29 @@ export function registerOAuthRoutes(app: Express) {
     }
 
     try {
-      // Direct GitHub OAuth exchange
-      const response = await axios.post(
-        ENV.oAuthServerUrl,
-        {
-          client_id: ENV.appId,
-          client_secret: ENV.githubClientSecret,
-          code,
-          redirect_uri: atob(state),
-        },
-        {
-          headers: {
-            Accept: "application/json",
-          },
-        }
-      );
+      // Exchange code for token using the SDK
+      const tokenResponse = await sdk.exchangeCodeForToken(code, state);
+      const accessToken = tokenResponse.accessToken;
 
-      const { access_token } = response.data;
-      if (!access_token) {
-        console.error("[OAuth] No access token in response:", response.data);
+      if (!accessToken) {
+        console.error("[OAuth] No access token in response:", tokenResponse);
         throw new Error("Failed to obtain access token");
       }
 
-      // Get user info from GitHub
-      const userResponse = await axios.get("https://api.github.com/user", {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      });
-
-      const userInfo = userResponse.data;
-      const openId = `github-${userInfo.id}`;
+      // Get user info using the SDK
+      const userInfo = await sdk.getUserInfo(accessToken);
+      const openId = userInfo.openId;
 
       await db.upsertUser({
         openId,
-        name: userInfo.name || userInfo.login,
+        name: userInfo.name || null,
         email: userInfo.email ?? null,
-        loginMethod: "github",
+        loginMethod: userInfo.loginMethod || userInfo.platform || null,
         lastSignedIn: new Date(),
       });
 
       const sessionToken = await sdk.createSessionToken(openId, {
-        name: userInfo.name || userInfo.login,
+        name: userInfo.name || "",
         expiresInMs: ONE_YEAR_MS,
       });
 

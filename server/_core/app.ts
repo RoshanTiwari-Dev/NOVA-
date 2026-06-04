@@ -26,18 +26,16 @@ export function createApp(): Express {
 
   // On Vercel, static files are served from /public by the CDN (express.static is ignored).
   // Non-API routes still hit this function, so serve index.html for client-side routing.
+  // Static file serving fallback for SPA routing is handled by vercel.json rewrites.
+  // This block is only needed if you want to handle it in the serverless function.
+  // However, it's better to let Vercel's edge handle it.
   if (process.env.VERCEL) {
-    const indexPath = path.join(process.cwd(), "public", "index.html");
     app.get("*", (req, res, next) => {
       if (req.path.startsWith("/api")) {
-        next();
-        return;
+        return next();
       }
-      if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-        return;
-      }
-      res.status(404).send("Not found");
+      // Vercel serves index.html automatically for non-api routes if configured in vercel.json
+      next();
     });
   }
 

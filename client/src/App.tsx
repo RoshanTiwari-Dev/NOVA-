@@ -12,15 +12,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/auth" component={AuthPage} />
-      <Route path="/NOVA-/auth" component={AuthPage} />
-
-      {/* Add /NOVA-/ to the main path */}
-      <Route path="/NOVA-" component={Home} />
-      
       {/* Fallback for standard root just in case */}
       <Route path="/" component={Home} />
-
-      <Route path="/NOVA-/404" component={NotFound} />
       <Route path="/404" component={NotFound} />
       
       {/* Final fallback route */}

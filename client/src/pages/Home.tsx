@@ -124,8 +124,7 @@ export default function Home() {
   }
 
   if (!isAuthenticated) {
-    const authPath = window.location.pathname.startsWith('/NOVA-') ? '/NOVA-/auth' : '/auth';
-    window.location.href = authPath;
+    window.location.href = '/auth';
     return null;
   }
 
