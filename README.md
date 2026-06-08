@@ -2,7 +2,7 @@
 
 A sophisticated, production-ready AI chatbot built with modern web technologies, featuring a ChatGPT-like interface, functional productivity tools, persistent chat history, and seamless Groq API integration.
 
-**Live Demo:** [groqchatbot-hakmkukg.manus.space](https://groqchatbot-hakmkukg.manus.space)
+**Live Demo:** 
 
 ---
 
