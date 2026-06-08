@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express, { type Express } from "express";
+import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import fs from "fs";
 import path from "path";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
@@ -30,7 +30,7 @@ export function createApp(): Express {
   // This block is only needed if you want to handle it in the serverless function.
   // However, it's better to let Vercel's edge handle it.
   if (process.env.VERCEL) {
-    app.get("*", (req, res, next) => {
+    app.get("*", (req: Request, res: Response, next: NextFunction) => {
       if (req.path.startsWith("/api")) {
         return next();
       }
