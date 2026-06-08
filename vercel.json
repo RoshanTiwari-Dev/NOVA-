@@ -1,6 +1,6 @@
 {
   "buildCommand": "pnpm run build",
-  "installCommand": "pnpm install --legacy-peer-deps",
+  "installCommand": "pnpm install",
   "devCommand": "pnpm run dev",
   "env": {
     "NODE_ENV": "production"
