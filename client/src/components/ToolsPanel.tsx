@@ -1,75 +1,40 @@
 import { useState } from "react";
-import { FileText, Folder, Search, Code, Plus, ChevronDown, Trash2, Loader2 } from "lucide-react";
+import { FileText, Folder, Search, Code, Plus, ChevronDown, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { trpc } from "@/lib/trpc";
+
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface Document {
+  id: string;
+  name: string;
+  size: string;
+}
+
+interface SearchResult {
+  title: string;
+  url: string;
+  snippet: string;
+}
 
 export function ToolsPanel() {
-  const [expandedTools, setExpandedTools] = useState<Set<string>>(new Set(["projects"]));
+  const [expandedTools, setExpandedTools] = useState<Set<string>>(new Set());
+  const [projects, setProjects] = useState<Project[]>([
+    { id: "1", name: "Sample Project", description: "Example project" },
+  ]);
+  const [documents, setDocuments] = useState<Document[]>([
+    { id: "1", name: "sample.pdf", size: "2.5 MB" },
+  ]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [codeInput, setCodeInput] = useState("");
   const [codeOutput, setCodeOutput] = useState("");
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDesc, setNewProjectDesc] = useState("");
-
-  const utils = trpc.useUtils();
-
-  // Queries
-  const { data: projects, isLoading: projectsLoading } = trpc.tools.listProjects.useQuery();
-  const { data: documents, isLoading: documentsLoading } = trpc.tools.listDocuments.useQuery();
-
-  // Mutations
-  const createProject = trpc.tools.createProject.useMutation({
-    onSuccess: () => {
-      utils.tools.listProjects.invalidate();
-      setNewProjectName("");
-      setNewProjectDesc("");
-      toast.success("Project created successfully");
-    },
-    onError: (err) => toast.error(err.message),
-  });
-
-  const deleteProject = trpc.tools.deleteProject.useMutation({
-    onSuccess: () => {
-      utils.tools.listProjects.invalidate();
-      toast.success("Project deleted");
-    },
-    onError: (err) => toast.error(err.message),
-  });
-
-  const uploadDocument = trpc.tools.uploadDocument.useMutation({
-    onSuccess: () => {
-      utils.tools.listDocuments.invalidate();
-      toast.success("File uploaded successfully");
-    },
-    onError: (err) => toast.error(err.message),
-  });
-
-  const deleteDocument = trpc.tools.deleteDocument.useMutation({
-    onSuccess: () => {
-      utils.tools.listDocuments.invalidate();
-      toast.success("Document deleted");
-    },
-    onError: (err) => toast.error(err.message),
-  });
-
-  const webSearch = trpc.tools.searchWeb.useQuery(
-    { query: searchQuery },
-    { enabled: false }
-  );
-
-  const executeCode = trpc.tools.executeCode.useMutation({
-    onSuccess: (data) => {
-      if (data.success) {
-        setCodeOutput(data.output || "Success (no output)");
-        toast.success("Code executed");
-      } else {
-        setCodeOutput(`Error: ${data.error}`);
-        toast.error("Execution failed");
-      }
-    },
-  });
 
   const toggleTool = (toolId: string) => {
     const newExpanded = new Set(expandedTools);
@@ -81,60 +46,110 @@ export function ToolsPanel() {
     setExpandedTools(newExpanded);
   };
 
-  // Handlers
+  // Projects Tool
   const handleAddProject = () => {
     if (!newProjectName.trim()) {
       toast.error("Project name is required");
       return;
     }
-    createProject.mutate({ name: newProjectName, description: newProjectDesc });
+    const newProject: Project = {
+      id: Date.now().toString(),
+      name: newProjectName,
+      description: newProjectDesc,
+    };
+    setProjects([...projects, newProject]);
+    setNewProjectName("");
+    setNewProjectDesc("");
+    toast.success("Project created successfully");
   };
 
+  const handleDeleteProject = (id: string) => {
+    setProjects(projects.filter((p) => p.id !== id));
+    toast.success("Project deleted");
+  };
+
+  // Documents Tool
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
+    if (files) {
       Array.from(files).forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const content = event.target?.result as string;
-          uploadDocument.mutate({
-            filename: file.name,
-            content: content,
-            size: file.size,
-          });
+        const newDoc: Document = {
+          id: Date.now().toString() + Math.random(),
+          name: file.name,
+          size: (file.size / 1024 / 1024).toFixed(2) + " MB",
         };
-        reader.readAsText(file); // For demo, reading as text. Real apps might use S3.
+        setDocuments([...documents, newDoc]);
       });
+      toast.success("Files uploaded successfully");
     }
   };
 
+  const handleDeleteDocument = (id: string) => {
+    setDocuments(documents.filter((d) => d.id !== id));
+    toast.success("Document deleted");
+  };
+
+  // Web Search Tool
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
       toast.error("Enter a search query");
       return;
     }
-    const { data } = await webSearch.refetch();
-    setSearchResults(data || []);
+
+    try {
+      const response = await fetch(
+        `https://api.duckduckgo.com/?q=${encodeURIComponent(searchQuery)}&format=json`
+      );
+      const data = await response.json();
+
+      const results: SearchResult[] = (data.Results || [])
+        .slice(0, 5)
+        .map((result: any) => ({
+          title: result.Title,
+          url: result.FirstURL,
+          snippet: result.Text,
+        }));
+
+      setSearchResults(results);
+      if (results.length === 0) {
+        toast.info("No results found");
+      } else {
+        toast.success(`Found ${results.length} results`);
+      }
+    } catch (error) {
+      toast.error("Search failed");
+      console.error(error);
+    }
   };
 
+  // Code Interpreter Tool
   const handleExecuteCode = () => {
     if (!codeInput.trim()) {
       toast.error("Enter code to execute");
       return;
     }
-    executeCode.mutate({ code: codeInput, language: "javascript" });
+
+    try {
+      // Simple JavaScript execution (for demo)
+      const result = eval(codeInput);
+      setCodeOutput(String(result));
+      toast.success("Code executed successfully");
+    } catch (error) {
+      setCodeOutput(`Error: ${(error as Error).message}`);
+      toast.error("Code execution failed");
+    }
   };
 
   return (
     <div className="w-full space-y-2">
       {/* Projects Tool */}
-      <div className="bg-card rounded-lg border border-border">
+      <div className="bg-white rounded-lg border border-gray-200">
         <button
           onClick={() => toggleTool("projects")}
-          className="w-full flex items-center justify-between p-3 hover:bg-accent transition-colors"
+          className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
         >
           <div className="flex items-center gap-2">
-            <Folder className="w-4 h-4 text-primary" />
+            <Folder className="w-4 h-4 text-blue-600" />
             <span className="font-medium text-sm">Projects</span>
           </div>
           <ChevronDown
@@ -144,71 +159,60 @@ export function ToolsPanel() {
           />
         </button>
         {expandedTools.has("projects") && (
-          <div className="border-t border-border p-3 space-y-2 bg-accent/30">
+          <div className="border-t border-gray-200 p-3 space-y-2 bg-gray-50">
             <div className="space-y-2">
               <input
                 type="text"
                 placeholder="Project name"
                 value={newProjectName}
                 onChange={(e) => setNewProjectName(e.target.value)}
-                className="w-full px-2 py-1 text-sm border border-border rounded bg-background"
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
               />
               <input
                 type="text"
                 placeholder="Description"
                 value={newProjectDesc}
                 onChange={(e) => setNewProjectDesc(e.target.value)}
-                className="w-full px-2 py-1 text-sm border border-border rounded bg-background"
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
               />
               <Button
                 onClick={handleAddProject}
-                disabled={createProject.isPending}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs py-1 h-8"
+                className="w-full bg-green-600 hover:bg-green-700 text-white text-xs py-1 h-8"
               >
-                {createProject.isPending ? (
-                  <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                ) : (
-                  <Plus className="w-3 h-3 mr-1" />
-                )}
-                Add Project
+                <Plus className="w-3 h-3 mr-1" /> Add Project
               </Button>
             </div>
-            <div className="space-y-1 max-h-48 overflow-y-auto">
-              {projectsLoading ? (
-                <div className="flex justify-center p-2"><Loader2 className="w-4 h-4 animate-spin text-gray-400" /></div>
-              ) : projects?.map((project) => (
+            <div className="space-y-1 max-h-32 overflow-y-auto">
+              {projects.map((project) => (
                 <div
                   key={project.id}
-                  className="flex items-center justify-between p-2 bg-card border border-border rounded text-xs"
+                  className="flex items-center justify-between p-2 bg-white border border-gray-200 rounded text-xs"
                 >
-                  <div className="truncate mr-2">
-                    <p className="font-medium truncate">{project.name}</p>
-                    <p className="text-muted-foreground truncate">{project.description}</p>
+                  <div>
+                    <p className="font-medium">{project.name}</p>
+                    <p className="text-gray-500">{project.description}</p>
                   </div>
                   <button
-                    onClick={() => deleteProject.mutate({ id: project.id })}
-                    className="p-1 hover:bg-destructive/10 rounded shrink-0"
+                    onClick={() => handleDeleteProject(project.id)}
+                    className="p-1 hover:bg-red-100 rounded"
                   >
-                    <Trash2 className="w-3 h-3 text-destructive" />
+                    <Trash2 className="w-3 h-3 text-red-600" />
                   </button>
                 </div>
               ))}
-              {!projectsLoading && projects?.length === 0 && (
-                <p className="text-center text-gray-400 text-[10px] py-2">No projects yet</p>
-              )}
             </div>
           </div>
         )}
       </div>
 
       {/* Documents Tool */}
-      <div className="bg-card rounded-lg border border-border">
+      <div className="bg-white rounded-lg border border-gray-200">
         <button
           onClick={() => toggleTool("documents")}
-          className="w-full flex items-center justify-between p-3 hover:bg-accent transition-colors"
+          className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
         >
           <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-primary" />
+            <FileText className="w-4 h-4 text-purple-600" />
             <span className="font-medium text-sm">Documents</span>
           </div>
           <ChevronDown
@@ -218,9 +222,9 @@ export function ToolsPanel() {
           />
         </button>
         {expandedTools.has("documents") && (
-          <div className="border-t border-border p-3 space-y-2 bg-accent/30">
+          <div className="border-t border-gray-200 p-3 space-y-2 bg-gray-50">
             <label className="block">
-              <span className="text-xs font-medium text-muted-foreground mb-1 block">
+              <span className="text-xs font-medium text-gray-700 mb-1 block">
                 Upload Files
               </span>
               <input
@@ -228,45 +232,39 @@ export function ToolsPanel() {
                 multiple
                 onChange={handleFileUpload}
                 className="w-full text-xs"
-                disabled={uploadDocument.isPending}
               />
             </label>
-            <div className="space-y-1 max-h-48 overflow-y-auto">
-              {documentsLoading ? (
-                <div className="flex justify-center p-2"><Loader2 className="w-4 h-4 animate-spin text-muted-foreground" /></div>
-              ) : documents?.map((doc) => (
+            <div className="space-y-1 max-h-32 overflow-y-auto">
+              {documents.map((doc) => (
                 <div
                   key={doc.id}
-                  className="flex items-center justify-between p-2 bg-card border border-border rounded text-xs"
+                  className="flex items-center justify-between p-2 bg-white border border-gray-200 rounded text-xs"
                 >
-                  <div className="truncate mr-2">
-                    <p className="font-medium truncate">{doc.name}</p>
-                    <p className="text-muted-foreground truncate">{doc.size}</p>
+                  <div>
+                    <p className="font-medium">{doc.name}</p>
+                    <p className="text-gray-500">{doc.size}</p>
                   </div>
                   <button
-                    onClick={() => deleteDocument.mutate({ id: doc.id })}
-                    className="p-1 hover:bg-destructive/10 rounded shrink-0"
+                    onClick={() => handleDeleteDocument(doc.id)}
+                    className="p-1 hover:bg-red-100 rounded"
                   >
-                    <Trash2 className="w-3 h-3 text-destructive" />
+                    <Trash2 className="w-3 h-3 text-red-600" />
                   </button>
                 </div>
               ))}
-              {!documentsLoading && documents?.length === 0 && (
-                <p className="text-center text-gray-400 text-[10px] py-2">No documents yet</p>
-              )}
             </div>
           </div>
         )}
       </div>
 
       {/* Web Search Tool */}
-      <div className="bg-card rounded-lg border border-border">
+      <div className="bg-white rounded-lg border border-gray-200">
         <button
           onClick={() => toggleTool("search")}
-          className="w-full flex items-center justify-between p-3 hover:bg-accent transition-colors"
+          className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
         >
           <div className="flex items-center gap-2">
-            <Search className="w-4 h-4 text-primary" />
+            <Search className="w-4 h-4 text-green-600" />
             <span className="font-medium text-sm">Web Search</span>
           </div>
           <ChevronDown
@@ -276,7 +274,7 @@ export function ToolsPanel() {
           />
         </button>
         {expandedTools.has("search") && (
-          <div className="border-t border-border p-3 space-y-2 bg-accent/30">
+          <div className="border-t border-gray-200 p-3 space-y-2 bg-gray-50">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -284,18 +282,13 @@ export function ToolsPanel() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                className="flex-1 px-2 py-1 text-sm border border-border rounded bg-background"
+                className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
               />
               <Button
                 onClick={handleSearch}
-                disabled={webSearch.isFetching}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs px-2 py-1 h-8"
+                className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1 h-8"
               >
-                {webSearch.isFetching ? (
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                ) : (
-                  <Search className="w-3 h-3" />
-                )}
+                <Search className="w-3 h-3" />
               </Button>
             </div>
             <div className="space-y-1 max-h-40 overflow-y-auto">
@@ -305,12 +298,12 @@ export function ToolsPanel() {
                   href={result.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block p-2 bg-card border border-border rounded text-xs hover:bg-primary/10"
+                  className="block p-2 bg-white border border-gray-200 rounded text-xs hover:bg-blue-50"
                 >
-                  <p className="font-medium text-primary truncate">
+                  <p className="font-medium text-blue-600 truncate">
                     {result.title}
                   </p>
-                  <p className="text-muted-foreground line-clamp-2">{result.snippet}</p>
+                  <p className="text-gray-600 line-clamp-2">{result.snippet}</p>
                 </a>
               ))}
             </div>
@@ -319,13 +312,13 @@ export function ToolsPanel() {
       </div>
 
       {/* Code Interpreter Tool */}
-      <div className="bg-card rounded-lg border border-border">
+      <div className="bg-white rounded-lg border border-gray-200">
         <button
           onClick={() => toggleTool("code")}
-          className="w-full flex items-center justify-between p-3 hover:bg-accent transition-colors"
+          className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
         >
           <div className="flex items-center gap-2">
-            <Code className="w-4 h-4 text-primary" />
+            <Code className="w-4 h-4 text-orange-600" />
             <span className="font-medium text-sm">Code</span>
           </div>
           <ChevronDown
@@ -335,28 +328,22 @@ export function ToolsPanel() {
           />
         </button>
         {expandedTools.has("code") && (
-          <div className="border-t border-border p-3 space-y-2 bg-accent/30">
+          <div className="border-t border-gray-200 p-3 space-y-2 bg-gray-50">
             <textarea
               placeholder="Enter JavaScript code..."
               value={codeInput}
               onChange={(e) => setCodeInput(e.target.value)}
-              className="w-full px-2 py-1 text-xs border border-border rounded font-mono h-20 bg-background"
+              className="w-full px-2 py-1 text-xs border border-gray-300 rounded font-mono h-20"
             />
             <Button
               onClick={handleExecuteCode}
-              disabled={executeCode.isPending}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs py-1 h-8"
+              className="w-full bg-green-600 hover:bg-green-700 text-white text-xs py-1 h-8"
             >
-              {executeCode.isPending ? (
-                <Loader2 className="w-3 h-3 animate-spin mr-1" />
-              ) : (
-                <Code className="w-3 h-3 mr-1" />
-              )}
-              Execute
+              <Code className="w-3 h-3 mr-1" /> Execute
             </Button>
             {codeOutput && (
-              <div className="p-2 bg-card border border-border rounded text-xs font-mono max-h-32 overflow-y-auto mt-2">
-                <p className="text-foreground whitespace-pre-wrap">{codeOutput}</p>
+              <div className="p-2 bg-white border border-gray-300 rounded text-xs font-mono max-h-20 overflow-y-auto">
+                <p className="text-gray-700">{codeOutput}</p>
               </div>
             )}
           </div>

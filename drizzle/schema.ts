@@ -15,7 +15,6 @@ export const users = mysqlTable("users", {
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
-  password: text("password"),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -76,3 +75,34 @@ export const projects = mysqlTable("projects", {
 
 export type Project = typeof projects.$inferSelect;
 export type InsertProject = typeof projects.$inferInsert;
+
+export const analyticsEvents = mysqlTable("analyticsEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"),
+  eventType: varchar("eventType", { length: 50 }).notNull(),
+  eventName: varchar("eventName", { length: 100 }).notNull(),
+  metadata: text("metadata"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type InsertAnalyticsEvent = typeof analyticsEvents.$inferInsert;
+
+export const analyticsDaily = mysqlTable("analyticsDaily", {
+  id: int("id").autoincrement().primaryKey(),
+  date: varchar("date", { length: 10 }).notNull(),
+  totalUsers: int("totalUsers").default(0),
+  totalConversations: int("totalConversations").default(0),
+  totalMessages: int("totalMessages").default(0),
+  microphoneUsage: int("microphoneUsage").default(0),
+  speakerUsage: int("speakerUsage").default(0),
+  projectsToolUsage: int("projectsToolUsage").default(0),
+  documentsToolUsage: int("documentsToolUsage").default(0),
+  searchToolUsage: int("searchToolUsage").default(0),
+  codeToolUsage: int("codeToolUsage").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AnalyticsDaily = typeof analyticsDaily.$inferSelect;
+export type InsertAnalyticsDaily = typeof analyticsDaily.$inferInsert;

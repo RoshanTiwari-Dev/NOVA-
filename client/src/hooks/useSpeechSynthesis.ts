@@ -44,6 +44,19 @@ export function useSpeechSynthesis(options: UseSpeechSynthesisOptions = {}) {
     };
   }, [onError]);
 
+  // Clean text for speech synthesis - remove special characters and symbols
+  const cleanTextForSpeech = useCallback((text: string): string => {
+    return text
+      // Remove asterisks, commas, and common special characters
+      .replace(/[*,]/g, ' ')
+      // Remove other special symbols but keep basic punctuation
+      .replace(/[&@#$%^~`]/g, '')
+      // Remove multiple spaces
+      .replace(/\s+/g, ' ')
+      // Trim whitespace
+      .trim();
+  }, []);
+
   const speak = useCallback(
     (text: string) => {
       const synth = window.speechSynthesis;
@@ -58,7 +71,9 @@ export function useSpeechSynthesis(options: UseSpeechSynthesisOptions = {}) {
       // Cancel any ongoing speech
       synth.cancel();
 
-      const utterance = new SpeechSynthesisUtterance(text);
+      // Clean the text before speaking
+      const cleanedText = cleanTextForSpeech(text);
+      const utterance = new SpeechSynthesisUtterance(cleanedText);
       utterance.rate = rate;
       utterance.pitch = pitch;
 
@@ -116,7 +131,7 @@ export function useSpeechSynthesis(options: UseSpeechSynthesisOptions = {}) {
 
       synth.speak(utterance);
     },
-    [voice, rate, pitch, onStart, onEnd, onError]
+    [voice, rate, pitch, onStart, onEnd, onError, cleanTextForSpeech]
   );
 
   const pause = useCallback(() => {

@@ -264,8 +264,220 @@
 - [x] Test on mobile devices
 
 ### Deployment
-- [ ] Commit changes to GitHub with feature message
-- [ ] Save checkpoint in Manus
+- [x] Commit changes to GitHub with feature message
+- [x] Save checkpoint in Manus
+- [x] Deploy to production
+- [x] Test live deployment
+- [x] Verify users can access listening/speaking features
+
+
+## Phase 10: User Analytics Dashboard
+
+### Analytics Requirements
+- [ ] Track unique visitors (UV)
+- [ ] Track page views (PV)
+- [ ] Track total conversations created
+- [ ] Track total messages sent
+- [ ] Track feature usage (listening, speaking, tools)
+- [ ] Track user engagement metrics
+- [ ] Track conversation duration
+- [ ] Track feature adoption rates
+
+### Database Schema for Analytics
+- [ ] Create analytics_events table to log user actions
+- [ ] Create analytics_daily_stats table for daily aggregates
+- [ ] Add tracking for microphone usage
+- [ ] Add tracking for speaker usage
+- [ ] Add tracking for tool usage (Projects, Documents, Web Search, Code)
+- [ ] Add timestamp and user_id to all events
+
+### Analytics API Endpoints
+- [ ] Create tRPC procedure to get overall stats
+- [ ] Create tRPC procedure to get daily stats
+- [ ] Create tRPC procedure to get feature usage breakdown
+- [ ] Create tRPC procedure to get user engagement metrics
+- [ ] Create tRPC procedure to log analytics events
+
+### Analytics Dashboard UI
+- [ ] Create Analytics page component
+- [ ] Display total users and conversations
+- [ ] Display feature usage breakdown (pie/bar chart)
+- [ ] Display daily activity trend (line chart)
+- [ ] Display listening/speaking feature adoption
+- [ ] Display top tools used
+- [ ] Add date range filter
+- [ ] Add export analytics to CSV
+
+### Feature Tracking Implementation
+- [ ] Track when microphone is used
+- [ ] Track when speaker button is clicked
+- [ ] Track which tools are used most
+- [ ] Track conversation length
+- [ ] Track user session duration
+- [ ] Track error events
+
+### Testing & Deployment
+- [ ] Test analytics data collection
+- [ ] Test analytics queries
+- [ ] Test dashboard UI
+- [ ] Verify data accuracy
 - [ ] Deploy to production
-- [ ] Test live deployment
-- [ ] Verify users can access listening/speaking features
+- [ ] Monitor analytics in live environment
+
+
+## Phase 11: Authentication & Login Page
+
+### Login Page UI
+- [x] Create Login page component
+- [x] Add Nova branding and logo
+- [x] Add "Sign in with Manus" button
+- [x] Add welcome message and description
+- [x] Style with green and white theme
+- [x] Make responsive for mobile
+
+### Authentication Guard
+- [x] Check if user is authenticated on app load
+- [x] Redirect unauthenticated users to login page
+- [x] Protect all routes except login
+- [x] Show loading state while checking auth
+- [x] Handle OAuth callback properly
+
+### Login Flow
+- [x] User lands on login page
+- [x] Clicks "Sign in with Manus"
+- [x] Redirected to Manus OAuth
+- [x] After auth, redirected back to Nova
+- [x] User sees chat interface
+
+### Testing & Deployment
+- [ ] Test login flow in development
+- [ ] Test redirect to login when not authenticated
+- [ ] Test redirect to chat after login
+- [ ] Deploy to production
+- [ ] Verify users must login to access Nova
+
+
+## Phase 12: Option A Enhancements (Quick Wins + Medium Effort)
+
+### Quick Wins: Dark Mode
+- [ ] Add dark mode toggle in settings
+- [ ] Create dark theme color palette
+- [ ] Apply dark theme to all components
+- [ ] Store theme preference in localStorage
+- [ ] Smooth theme transitions
+- [ ] Test dark mode on all pages
+
+### Quick Wins: Design Improvements
+- [ ] Add smooth animations for message appearance
+- [ ] Improve message bubble styling with better shadows
+- [ ] Enhance input area with better focus states
+- [ ] Better mobile responsiveness
+- [ ] Improve typography and spacing
+- [ ] Add visual feedback for all interactions
+
+### Quick Wins: User Profile & Settings
+- [ ] Create user profile page
+- [ ] Display user info (name, email, avatar)
+- [ ] Add profile settings panel
+- [ ] Privacy settings
+- [ ] Notification preferences
+- [ ] Account management options
+
+### Quick Wins: Keyboard Shortcuts
+- [ ] Add keyboard shortcuts guide
+- [ ] Implement Ctrl+N for new chat
+- [ ] Implement Ctrl+K for search
+- [ ] Implement Ctrl+D for favorite
+- [ ] Display shortcuts in help menu
+- [ ] Customizable shortcuts
+
+### Medium Effort: File Upload
+- [ ] Add file upload button to chat
+- [ ] Support multiple file types
+- [ ] Display uploaded files in chat
+- [ ] Add file preview functionality
+- [ ] Store files in S3
+- [ ] Allow file deletion
+
+### Medium Effort: Conversation Favorites
+- [ ] Add star/favorite button to conversations
+- [ ] Filter conversations by favorites
+- [ ] Display favorites at top of list
+- [ ] Store favorite status in database
+- [ ] Add keyboard shortcut (Ctrl+D)
+
+### Medium Effort: Message Reactions
+- [ ] Add emoji reaction buttons to messages
+- [ ] Add thumbs up/down feedback
+- [ ] Store reactions in database
+- [ ] Display reaction counts
+- [ ] Add feedback analytics
+
+
+## Phase 13: Bug Fixes
+
+### Bug 1: Conversation Auto-Naming
+- [x] Fix conversation naming to use first message content
+- [x] Generate meaningful titles from user's first query
+- [x] Replace generic "New Chat" with descriptive names
+- [x] Ensure titles are concise (max 50 chars)
+
+### Bug 2: Microphone Not Working
+- [x] Debug speech recognition in Chrome
+- [x] Check microphone permissions handling
+- [x] Fix Web Speech API initialization
+- [x] Add error logging for debugging
+- [x] Test in Chrome, Firefox, Safari
+- [x] Verify microphone access works on first click
+
+
+## Phase 14: Microphone Debugging & Fix
+
+### Investigate Error
+- [ ] Check browser console for exact error message
+- [ ] Verify microphone permissions in Chrome
+- [ ] Test with different browsers
+- [ ] Check if Web Speech API is available
+
+### Rewrite Implementation
+- [ ] Simplify speech recognition hook
+- [ ] Use native Web Speech API directly
+- [ ] Add better error handling
+- [ ] Remove unnecessary dependencies
+
+### Testing
+- [ ] Test microphone in Chrome
+- [ ] Verify first-click recording works
+- [ ] Test error scenarios
+- [ ] Verify audio transcription accuracy
+
+### Deployment
+- [ ] Deploy microphone fix to production
+- [ ] Verify users can use microphone
+
+
+## Phase 15: Text-to-Speech Cleanup & Visual Representation
+
+### Text-to-Speech Cleanup
+- [ ] Remove asterisks from spoken text
+- [ ] Remove commas from spoken text
+- [ ] Remove special symbols (*, &, #, @, etc.)
+- [ ] Add brief pause (millisecond) instead of reading symbols
+- [ ] Clean punctuation while preserving meaning
+- [ ] Test audio output sounds natural
+
+### Visual Representation (Images)
+- [ ] Integrate image search API (DuckDuckGo or similar)
+- [ ] Fetch relevant images based on chat topic
+- [ ] Display images in chat messages
+- [ ] Add image captions/descriptions
+- [ ] Make images responsive and attractive
+- [ ] Cache images for performance
+- [ ] Test with various topics (people, places, concepts)
+
+### Testing & Deployment
+- [ ] Test text-to-speech cleanup
+- [ ] Test image fetching and display
+- [ ] Verify images load correctly
+- [ ] Test on mobile devices
+- [ ] Deploy to production
