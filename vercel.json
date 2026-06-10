@@ -1,14 +1,15 @@
 {
-  "buildCommand": "pnpm run build",
+  "buildCommand": "pnpm run build:frontend",
   "installCommand": "pnpm install",
   "devCommand": "pnpm run dev",
+  "outputDirectory": "dist",
   "env": {
     "NODE_ENV": "production"
   },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/dist/index.js"
+      "destination": "/index.html"
     }
   ]
 }
