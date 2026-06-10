@@ -8,6 +8,7 @@ declare global {
       protocol: string;
       originalUrl: string;
       hostname?: string;
+      path: string;
     }
 
     interface Response {
@@ -20,8 +21,17 @@ declare global {
       set(field: string, value?: string | string[]): this;
       set(field: Record<string, string | string[]>): this;
       end(data?: any, encoding?: string): void;
+      send(body?: any): this;
+    }
+
+    interface Application {
+      get(path: string, handler: (req: Request, res: Response, next?: NextFunction) => void): this;
+      use(handler: (req: Request, res: Response, next?: NextFunction) => void): this;
+      use(path: string, handler: (req: Request, res: Response, next?: NextFunction) => void): this;
     }
   }
+
+  type NextFunction = (err?: any) => void;
 }
 
 export {};
