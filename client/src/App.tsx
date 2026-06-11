@@ -8,6 +8,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { DarkModeProvider } from "./contexts/DarkModeContext";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import { useAuth } from "./_core/hooks/useAuth";
 import { Loader2 } from "lucide-react";
@@ -44,6 +45,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
+      <Route path="/signup" component={Signup} />
       <Route path="/" component={() => <ProtectedRoute component={Home} />} />
       <Route path="/profile" component={() => <ProtectedRoute component={Profile} />} />
 

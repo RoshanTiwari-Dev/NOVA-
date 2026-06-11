@@ -22,6 +22,7 @@ import {
   getSpeechFeatureStats,
   getUserEngagementMetrics,
 } from "./analytics";
+import { hashPassword, verifyPassword, createToken } from "./auth";
 
 export const appRouter = router({
   system: systemRouter,
@@ -34,6 +35,66 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+
+    signup: publicProcedure
+      .input(z.object({ email: z.string().email(), password: z.string().min(6), name: z.string().optional() }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await import("./db").then((m) => m.getDb());
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        const { users } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+
+        // Check if user exists
+        const existingUser = await db.select().from(users).where(eq(users.email, input.email)).limit(1);
+        if (existingUser.length > 0) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Email already registered" });
+        }
+
+        // Create user
+        const passwordHash = hashPassword(input.password);
+        const result = await db.insert(users).values({
+          email: input.email,
+          passwordHash,
+          name: input.name || input.email.split("@")[0],
+          loginMethod: "email",
+        });
+
+        const userId = (result as any).insertId;
+        const token = createToken(userId);
+
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
+
+        return { success: true, userId };
+      }),
+
+    login: publicProcedure
+      .input(z.object({ email: z.string().email(), password: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await import("./db").then((m) => m.getDb());
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        const { users } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+
+        // Find user
+        const user = await db.select().from(users).where(eq(users.email, input.email)).limit(1);
+        if (user.length === 0 || !user[0].passwordHash) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid email or password" });
+        }
+
+        // Verify password
+        if (!verifyPassword(input.password, user[0].passwordHash)) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid email or password" });
+        }
+
+        const token = createToken(user[0].id);
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
+
+        return { success: true, userId: user[0].id };
+      }),
   }),
 
   chat: router({
@@ -432,45 +493,44 @@ export const appRouter = router({
         z.object({
           eventType: z.string(),
           eventName: z.string(),
-          metadata: z.record(z.string(), z.any()).optional(),
+          metadata: z.record(z.any()).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
-        await logAnalyticsEvent(
-          ctx.user.id,
-          input.eventType,
-          input.eventName,
-          input.metadata || undefined
-        );
+        await logAnalyticsEvent(ctx.user.id, input.eventType, input.eventName, input.metadata);
         return { success: true };
       }),
 
-    getOverallStats: publicProcedure.query(async () => {
-      return await getOverallStats();
+    getStats: protectedProcedure.query(async ({ ctx }) => {
+      const stats = await getOverallStats();
+      return stats;
     }),
 
-    getDailyStats: publicProcedure
-      .input(z.object({ date: z.string() }))
-      .query(async ({ input }) => {
-        return await getDailyStats(input.date);
-      }),
+    getDailyStats: protectedProcedure.query(async ({ ctx }) => {
+      const stats = await getDailyStats();
+      return stats;
+    }),
 
-    getDateRangeStats: publicProcedure
+    getDateRangeStats: protectedProcedure
       .input(z.object({ startDate: z.string(), endDate: z.string() }))
-      .query(async ({ input }) => {
-        return await getDateRangeStats(input.startDate, input.endDate);
+      .query(async ({ ctx, input }) => {
+        const stats = await getDateRangeStats(input.startDate, input.endDate);
+        return stats;
       }),
 
-    getFeatureUsageBreakdown: publicProcedure.query(async () => {
-      return await getFeatureUsageBreakdown();
+    getFeatureUsage: protectedProcedure.query(async ({ ctx }) => {
+      const usage = await getFeatureUsageBreakdown();
+      return usage;
     }),
 
-    getSpeechFeatureStats: publicProcedure.query(async () => {
-      return await getSpeechFeatureStats();
+    getSpeechStats: protectedProcedure.query(async ({ ctx }) => {
+      const stats = await getSpeechFeatureStats();
+      return stats;
     }),
 
-    getUserEngagementMetrics: publicProcedure.query(async () => {
-      return await getUserEngagementMetrics();
+    getUserEngagement: protectedProcedure.query(async ({ ctx }) => {
+      const metrics = await getUserEngagementMetrics();
+      return metrics;
     }),
   }),
 });
