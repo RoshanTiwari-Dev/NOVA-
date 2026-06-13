@@ -1,0 +1,6 @@
+server
+drizzle
+*.test.ts
+.env
+.env.local
+tsconfig.json
