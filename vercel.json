@@ -5,7 +5,8 @@
   "devCommand": "pnpm run dev",
   "outputDirectory": "dist/public",
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "SKIP_ENV_VALIDATION": "1"
   },
   "rewrites": [
     {

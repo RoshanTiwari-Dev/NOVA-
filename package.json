@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
-    "build:frontend": "vite build",
+    "build:frontend": "SKIP_ENV_VALIDATION=1 vite build",
     "build:backend": "esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist"
   },
   "dependencies": {

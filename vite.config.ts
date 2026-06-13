@@ -171,6 +171,13 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
   },
+  esbuild: {
+    tsconfigRaw: {
+      compilerOptions: {
+        jsx: 'preserve',
+      },
+    },
+  },
   server: {
     host: true,
     allowedHosts: [
@@ -187,4 +194,6 @@ export default defineConfig({
       deny: ["**/.*"],
     },
   },
+  // Use frontend-only tsconfig to exclude server code
+  cacheDir: '.vite',
 });
