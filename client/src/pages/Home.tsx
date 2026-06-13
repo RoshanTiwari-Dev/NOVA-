@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
+
 import { trpc } from "@/lib/trpc";
 import { Loader2 } from "lucide-react";
 import { ModernLayout } from "@/components/ModernLayout";
@@ -133,7 +133,7 @@ export default function Home() {
           <h1 className="text-4xl font-bold text-gray-800 mb-2">Nova</h1>
           <p className="text-gray-600 mb-8">AI-powered conversations at your fingertips</p>
           <Button
-            onClick={() => (window.location.href = getLoginUrl())}
+            onClick={() => (window.location.href = "/login")}
             className="bg-green-600 hover:bg-green-700 text-white px-8 py-2"
           >
             Sign In to Chat

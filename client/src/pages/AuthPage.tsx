@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, LogIn, UserPlus } from "lucide-react";
-import { getLoginUrl } from "@/const";
+
 export default function AuthPage() {
   const [, setLocation] = useLocation();
   const [loading, setLoading] = useState(false);
@@ -60,7 +60,8 @@ export default function AuthPage() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = getLoginUrl();
+    // TODO: Implement Google OAuth
+    toast.error("Google login coming soon");
   };
 
   return (
